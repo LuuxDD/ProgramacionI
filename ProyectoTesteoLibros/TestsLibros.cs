@@ -10,10 +10,23 @@ namespace ProyectoTesteoLibros
         }
 
         [Test]
-        public void Test1()
+        public async Task TestObtenerLibros()
         {
             LibrosRepository librosRepository = new LibrosRepository();
-            Assert.Pass();
+            var libros= await librosRepository.ObtenerLibrosAsync();
+
+            Assert.That(libros.Count, Is.Not.EqualTo(0));
         }
+        [Test]
+        public async Task TestAgregarLibro()
+        {
+            LibrosRepository librosRepository = new LibrosRepository();
+            var libros = await librosRepository.AgregarAsync("LibroTest", "AutoTest", "Editorial est","PortadaTest", "GeneroTest");
+
+            Assert.That(libros.nombre, Is.Not.EqualTo("LibroTest"));
+        }
+    }
+
+
     }
 }
