@@ -7,50 +7,61 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+
 
 namespace EjerciciosDePrueba.Repositories
 {
     public class LibrosRepository
     {
-        string urlApi = "https://ingenieriasoftware-9437.restdb.io/home/db/ingenieriasoftware-9437/cards ";
+        string urlApi = "https://ingenieriasoftware-9437.restdb.io/home/db/ingenieriasoftware-9437/cards";
         HttpClient client = new HttpClient();
 
         public LibrosRepository()
         {
-            //Configuramos que trabajara con respuestas JSON
+            // Configuramos que trabajará con respuestas JSON
             client.DefaultRequestHeaders.Add("Accept", "application/json");
-            client.DefaultRequestHeaders.Add("ApiKay ", "64aeea7da1ce30200009bc63");
+            client.DefaultRequestHeaders.Add("ApiKey", "64aeea7da1ce30200009bc63");
         }
 
         public async Task<ObservableCollection<Libro>?> ObtenerLibrosAsync()
         {
             var response = await client.GetAsync(urlApi);
-            return JsonConverter.DeserializeObject<ObservableCollection<Libro>>(response);
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<ObservableCollection<Libro>>(json);
+            }
+            return null;
         }
 
         public async Task<Libro?> AgregarAsync(string nombre, int paginas, string autor, string editorial, string portadaUrl, string genero, string sinopsis)
         {
-            //Creamos un objeto del tipo libro con los parametrosque llegan 
-            Libro libro = new Libro();
+            // Creamos un objeto del tipo Libro con los parámetros que llegan
+            Libro libro = new Libro
             {
-                    nombre = nombre,
-                    paginas = paginas,
-                    autor = autor,
-                    editorial= editorial,
-                    portadaUrl= portadaUrl,
-                    genero = genero,
-                    sinopsis = sinopsis
-
+                nombre = nombre,
+                Paginas = paginas,
+                Autor = autor,
+                Editorial = editorial,
+                PortadaUrl = portadaUrl,
+                Genero = genero,
+                Sinopsis = sinopsis
             };
 
-            //Enviamos por post el objeto que creamos a la URL de la API
-
+            // Enviamos por POST el objeto que creamos a la URL de la API
             var librojson = new StringContent(
-                JsonConverter.SerializeObject(libro),
-                Encoding.UTF8, "aplication/json");
+                JsonConvert.SerializeObject(libro),
+                Encoding.UTF8, "application/json");
+
             var response = await client.PostAsync(urlApi, librojson);
 
-            //
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<Libro>(json);
+            }
+            return null;
         }
     }
 }
